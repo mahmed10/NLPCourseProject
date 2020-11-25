@@ -12,7 +12,7 @@
         {"tag": "ratingValue",
          "patterns": ["Give me movie ratings", "I want to movie review"],
          "responses": [""],
-         "context": "googlesearch"
+         "context": ["googlesearch"]
         }
     ]
 }

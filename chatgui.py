@@ -5,6 +5,12 @@ lemmatizer = WordNetLemmatizer()
 import pickle
 import numpy as np
 
+#https://bit.ly/2NyxdAG
+from bs4 import BeautifulSoup
+import requests
+from lxml import html
+import re
+
 from googlesearch import search
 
 from keras.models import load_model
@@ -57,14 +63,60 @@ def getResponse(ints, intents_json):
 		if(i['tag']== tag):
 			result = random.choice(i['responses'])
 			context = i['context']
+			tag = i['tag']
 			break
-	return result, context
+	return result, context, tag
 
 def chatbot_response(msg):
 	ints = predict_class(msg, model)
-	res, con = getResponse(ints, intents)
-	return res, con
+	res, con, tag = getResponse(ints, intents)
+	return res, con, tag
 
+
+def getMovieDetails(url):
+    data = {}
+    r = requests.get(url=url)
+    # Create a BeautifulSoup object
+    soup = BeautifulSoup(r.text, 'html.parser')
+
+    #page title
+    title = soup.find('title')
+    data["title"] = title.string
+
+    # rating
+    ratingValue = soup.find("span", {"itemprop" : "ratingValue"})
+    data["ratingValue"] = ratingValue.string
+
+    # no of rating given
+    ratingCount = soup.find("span", {"itemprop" : "ratingCount"})
+    data["ratingCount"] = ratingCount.string
+
+    # name
+    titleName = soup.find("div",{'class':'titleBar'}).find("h1")
+    data["name"] = titleName.contents[0].replace(u'\xa0', u'')
+
+    # additional details
+    subtext = soup.find("div",{'class':'subtext'})
+    data["subtext"] = ""
+    for i in subtext.contents:
+        data["subtext"] += i.string.strip()
+
+    # summary
+    summary_text = soup.find("div",{'class':'summary_text'})
+    data["summary_text"] = summary_text.string.strip()
+
+    credit_summary_item = soup.find_all("div",{'class':'credit_summary_item'})
+    data["credits"] = {}
+    for i in credit_summary_item:
+        item = i.find("h4")
+        names = i.find_all("a")
+        data["credits"][item.string] = []
+        for i in names:
+            data["credits"][item.string].append({
+                "link": i["href"],
+                "name": i.string
+            })
+    return data
 
 #Creating GUI with tkinter
 import tkinter
@@ -80,9 +132,17 @@ def send():
 		ChatLog.insert(END, "You: " + msg + '\n\n')
 		ChatLog.config(foreground="#442265", font=("Verdana", 12 ))
 
-		res, con = chatbot_response(msg)
-		if con == 'googlesearch':
+		res, con, tag = chatbot_response(msg)
+		if con[0] == 'googlesearch':
 			ChatLog.insert(END, "Bot: " + res)
+			query = msg + " imdb"
+			serach_result = next(search(query, stop=1))
+			if(serach_result[:20] == "https://www.imdb.com"):
+				details = getMovieDetails(serach_result)
+				ChatLog.insert(END, "Rating of the movie \"" + details['title'].split('-')[0] + "\" (out of 10) is " + details[tag]+ '\n\n')
+			else:
+				ChatLog.insert(END, "Not found"+ '\n\n')
+
 
 		else:
 			ChatLog.insert(END, "Bot: " + res + '\n\n')
