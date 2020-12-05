@@ -1,10 +1,12 @@
 
+
 import nltk
 from nltk.stem import WordNetLemmatizer
 lemmatizer = WordNetLemmatizer()
 import pickle
 import numpy as np
-
+import os
+os.chdir("C:\\Users\\argho\\Pictures\\NLP\\NLPCourseProject-master\\")
 #https://bit.ly/2NyxdAG
 from bs4 import BeautifulSoup
 import requests
@@ -133,10 +135,10 @@ def send():
 		ChatLog.config(foreground="#442265", font=("Verdana", 12 ))
 
 		res, con, tag = chatbot_response(msg)
-		if con[0] == 'googlesearch':
+		if con[0] == 'googlesearch_movie':
 			ChatLog.insert(END, "Bot: " + res)
-			query = msg + " imdb"
-			serach_result = next(search(query, stop=1))
+			query = msg + "imdb"
+			serach_result = next(iter(search(query,num_results=1)))
 			if(serach_result[:20] == "https://www.imdb.com"):
 				details = getMovieDetails(serach_result)
 				ChatLog.insert(END, "Rating of the movie \"" + details['title'].split('-')[0] + "\" (out of 10) is " + details[tag]+ '\n\n')
@@ -144,8 +146,35 @@ def send():
 				ChatLog.insert(END, "Not found"+ '\n\n')
 
 
+		elif con[0] == 'googlesearch_dir':
+			ChatLog.insert(END, "Bot: " + res)
+			query = msg + " imdb"
+			serach_result = next(iter(search(query,num_results=1)))
+			if(serach_result[:20] == "https://www.imdb.com"):
+				details = getMovieDetails(serach_result)
+				ChatLog.insert(END, "Director of the movie is \"" + details["credits"]["Director:"][0]["name"] + '\n\n')
+			else:
+				ChatLog.insert(END, "Not found"+ '\n\n')
+
+
+		# else:
+		# 	ChatLog.insert(END, "Bot: " + res + '\n\n')
+
+		elif con[0] == 'googlesearch_summary':
+			ChatLog.insert(END, "Bot: " + res)
+			query = msg + " imdb"
+			serach_result = next(iter(search(query,num_results=1)))
+			if(serach_result[:20] == "https://www.imdb.com"):
+				details = getMovieDetails(serach_result)
+				ChatLog.insert(END, "Main Plot: \"" + details["summary_text"] + '\n\n')
+			else:
+				ChatLog.insert(END, "Not found"+ '\n\n')
+
+
 		else:
-			ChatLog.insert(END, "Bot: " + res + '\n\n')
+			ChatLog.insert(END, "Bot: " + res + '\n\n')	
+
+
 		ChatLog.config(state=DISABLED)
 		ChatLog.yview(END)
 
@@ -153,7 +182,7 @@ def send():
 
 
 base = Tk()
-base.title("Hello")
+base.title("iBOT")
 base.geometry("400x500")
 base.resizable(width=FALSE, height=FALSE)
 
@@ -183,3 +212,4 @@ EntryBox.place(x=128, y=401, height=90, width=265)
 SendButton.place(x=6, y=401, height=90)
 
 base.mainloop()
+
