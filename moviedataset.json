@@ -1,18 +1,28 @@
 {"intents":[
         {"tag": "greeting",
-         "patterns": ["Hi there", "How are you", "Is anyone there?","Hey","Hola", "Hello", "Good day"],
-         "responses": ["Hello, thanks for asking", "Good to see you again", "Hi there, how can I help?"],
+         "patterns": ["Hi there", "How are you", "Is anyone there?","Hey","Hola", "Hello", "Good day", "Hi"],
+         "responses": ["Hello", "Hi", "Hi, Good to see you", "Hi there, how can I help?", "Hi, What can I do for you?"],
          "context": [""]
         },
         {"tag": "goodbye",
          "patterns": ["Bye", "See you later", "Goodbye", "Nice chatting to you, bye", "Till next time"],
-         "responses": ["See you!", "Have a nice day", "Bye! Come back again soon."],
+         "responses": ["See you!", "Have a nice day", "Bye! Come back again soon.", "Goodbye, have a nice day!"],
          "context": [""]
         },
         {"tag": "ratingValue",
-         "patterns": ["Give me movie ratings", "I want to movie review"],
+         "patterns": ["Give me movie ratings", "I want movie review", "Please, give me movie ratings","Movie review","Movie rating"],
          "responses": [""],
-         "context": ["googlesearch"]
-        }
+         "context": ["googlesearch_movie"]
+        },
+        {"tag": "MovieDirector",
+         "patterns": ["Movie Director", "Tell me the name of the director", "Name of Director","Who is the director?","Director","Who direct the movie?"],
+         "responses": [""],
+         "context": ["googlesearch_dir"]
+        },
+        {"tag": "MovieSummary",
+         "patterns": ["Plot of the movie", "summary of the movie", "Tell me the summary","Tell me the plot","What is the story?","Story"],
+         "responses": [""],
+         "context": ["googlesearch_summary"]}
+
     ]
 }
